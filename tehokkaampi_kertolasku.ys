@@ -1,0 +1,34 @@
+main:
+    irmovq $1, %r8          #bit "inspector"
+    irmovq $1, %r10         #constant for sub
+    irmovq $1, %rdx         #constant for moving
+    irmovq $0, %rbx         #constant for comparing
+    irmovq $40, %r13        #how many times to check
+    rrmovq %r11, %r9        #moving multiplication value to r9
+    andq %r8, %r9           #if inspected bit == 1, add multiplicator
+    cmovg %r12, %rax
+    jmp tarkastus           #jump to tarkastus
+    
+tarkastus:
+    addq %r10, %rdx         #in what bit
+    addq %r8, %r8           #moving r8 to left once
+    subq %r10, %r13         #sub 1 from times to check
+    jl lopeta               #if times to check == 0, stop
+    rrmovq %r11, %r9        #moving multiplicator to r9
+    andq %r8, %r9           #if inspected bit => 1
+    cmovge %rdx, %r9        #making r9 moving constant
+    jg kertolasku           #jump to  multiplication
+    jmp tarkastus           #else looping again
+
+kertolasku:                 #multiplication
+    addq %rcx, %rcx         #multiplicating rcx by two
+    subq %rbx, %rcx         #comparing to 0
+    cmove %r12, %rcx        #if equal, moving r12 to rcx
+    subq %r10, %r9          #sub 1 from times to move
+    jg kertolasku           #if times to move > 1 looping again
+    addq %rcx, %rax         #rax += rcx
+    irmovq $0, %rcx         #reset rcx to 0
+    jmp tarkastus
+
+lopeta:                     #stop
+    halt
